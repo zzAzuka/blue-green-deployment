@@ -59,32 +59,27 @@ pipeline {
           """
 
           // Health check using PowerShell
-            powershell """
-            \$port = '${env.PORT}'
-            Start-Sleep -Seconds 5
-            \$response = Invoke-WebRequest -Uri "http://localhost:\$port/health" -UseBasicParsing
-            if (\$response.StatusCode -ne 200) { exit 1 }
-            """
+          powershell """
+          \$port = '${env.PORT}'
+          Start-Sleep -Seconds 5
+          \$response = Invoke-WebRequest -Uri "http://localhost:\$port/health" -UseBasicParsing
+          if (\$response.StatusCode -ne 200) { exit 1 }
+          """
 
+          // Safely update Nginx config
+          powershell """
+          \$nginxPath = 'C:\\nginx\\nginx-1.29.3'
+          \$confTemplate = "\$nginxPath\\conf\\nginx.conf.template"
+          \$confFile = "\$nginxPath\\conf\\nginx.conf"
+          \$port = '${env.PORT}'
 
-          // Update Nginx config and reload
-            powershell """
-            \$nginxPath = 'C:\\nginx\\nginx-1.29.3'
-            \$confFile = "\$nginxPath\\conf\\nginx.conf"
-            \$port = '${env.PORT}'
+          # Generate nginx.conf dynamically by replacing placeholder
+          (Get-Content \$confTemplate) -replace '\\$\\{PORT\\}', "\$port" | Set-Content \$confFile
 
-            # Update the upstream port in nginx.conf
-            (Get-Content \$confFile) `
-            -replace '127\\.0\\.0\\.1:4000', "127.0.0.1:\$port" `
-            -replace '127\\.0\\.0\\.1:5000', "127.0.0.1:\$port" |
-            Set-Content \$confFile
-
-            # Reload Nginx from the correct working directory
-            Set-Location \$nginxPath
-            & .\\nginx.exe -s reload
-            """
-
-
+          # Reload Nginx
+          Set-Location \$nginxPath
+          & .\\nginx.exe -s reload
+          """
 
           // Write new active environment to file
           writeFile file: 'C:\\nginx\\active_env.txt', text: env.NEW
