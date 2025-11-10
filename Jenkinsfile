@@ -69,10 +69,10 @@ pipeline {
 
           // Update Nginx config and reload
           powershell """
-          (Get-Content 'C:\\nginx\\nginx-1.29.4\\conf\\nginx.conf') `
+          (Get-Content 'C:\\nginx\\nginx-1.29.3\\conf\\nginx.conf') `
             -replace '127\\.0\\.0\\.1:4000', '127.0.0.1:$env:PORT' `
             -replace '127\\.0\\.0\\.1:5000', '127.0.0.1:$env:PORT' |
-            Set-Content 'C:\\nginx\\nginx-1.29.4\\conf\\nginx.conf'
+            Set-Content 'C:\\nginx\\nginx-1.29.3\\conf\\nginx.conf'
 
           & 'C:\\nginx\\nginx-1.29.4\\nginx.exe' -s reload
           """
