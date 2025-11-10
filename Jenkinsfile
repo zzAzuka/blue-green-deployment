@@ -59,11 +59,13 @@ pipeline {
           """
 
           // Health check using PowerShell
-          powershell """
-          Start-Sleep -Seconds 5
-          \$response = Invoke-WebRequest -Uri http://localhost:$env:PORT/health -UseBasicParsing
-          if (\$response.StatusCode -ne 200) { exit 1 }
-          """
+            powershell """
+            \$port = '${env.PORT}'
+            Start-Sleep -Seconds 5
+            \$response = Invoke-WebRequest -Uri "http://localhost:\$port/health" -UseBasicParsing
+            if (\$response.StatusCode -ne 200) { exit 1 }
+            """
+
 
           // Update Nginx config and reload
           powershell """
