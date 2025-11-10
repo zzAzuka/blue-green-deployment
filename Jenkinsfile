@@ -71,17 +71,19 @@ pipeline {
             powershell """
             \$nginxPath = 'C:\\nginx\\nginx-1.29.3'
             \$confFile = "\$nginxPath\\conf\\nginx.conf"
+            \$port = '${env.PORT}'
 
             # Update the upstream port in nginx.conf
             (Get-Content \$confFile) `
-            -replace '127\\.0\\.0\\.1:4000', '127.0.0.1:${env.PORT}' `
-            -replace '127\\.0\\.0\\.1:5000', '127.0.0.1:${env.PORT}' |
+            -replace '127\\.0\\.0\\.1:4000', "127.0.0.1:\$port" `
+            -replace '127\\.0\\.0\\.1:5000', "127.0.0.1:\$port" |
             Set-Content \$confFile
 
-            # Reload Nginx from the correct working directory so logs/conf are found
+            # Reload Nginx from the correct working directory
             Set-Location \$nginxPath
             & .\\nginx.exe -s reload
             """
+
 
 
           // Write new active environment to file
