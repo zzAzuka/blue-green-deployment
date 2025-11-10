@@ -74,7 +74,7 @@ pipeline {
             -replace '127\\.0\\.0\\.1:5000', '127.0.0.1:$env:PORT' |
             Set-Content 'C:\\nginx\\nginx-1.29.3\\conf\\nginx.conf'
 
-          & 'C:\\nginx\\nginx-1.29.4\\nginx.exe' -s reload
+          & 'C:\\nginx\\nginx-1.29.3\\nginx.exe' -s reload
           """
 
           // Write new active environment to file
